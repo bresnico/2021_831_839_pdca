@@ -1,15 +1,17 @@
 ---
-title: "Synthèse des réponses au questionnaire d'évaluation du cours"
-author: "Nicolas Bressoud"
-date: "mai 2021"
-code_cours: "5.3"
-intitule_cours: "Enseigner en classe hétérogène"
-nombre_etus: "44"
+title: "Synthèse des réponses au questionnaire d'évaluation des cours"
+author: "Nicolas Bressoud & Elena Lucciarini"
+date: "septembre 2021"
+code_cours: "8.31 & 8.39"
+intitule_cours: "compétences émotionnelles et ressources de la classe"
+nombre_etus: "35"
 semestre: "Automne 2021"
 remediation: "2021-2022"
 lang: fr
 toc-title: "Table des matières"
 output:
+  html_document:
+    toc: true
   officedown::rdocx_document:
     reference_docx: "template.docx"
     toc: true
@@ -32,7 +34,102 @@ knit: knitnbr::knit_date_output
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = FALSE)
-source("pdca_mi-parcours.R")
+```
+
+```{r, include=FALSE}
+# Packages
+library(readxl)
+library(tidyverse)
+library(limer)
+library(lubridate)
+library(rio)
+
+# Setup API details
+options(lime_api = 'https://survey.competences-emotionnelles.ch/admin/remotecontrol')
+options(lime_username = 'nbr_low') #Compte limité
+options(lime_password = '82BBdJyTjqzz')
+
+# Do stuff with LimeSurvey API
+get_session_key()  # Log in
+responses <- get_responses(371675, sResponseType = "short")  # Get results from survey
+
+
+
+# Release session key
+release_session_key()
+
+# Mise à jour des noms des variables PAS ENCORE BON
+d <- responses
+
+# Mise à jour des variables selon une syntaxe de type q1_1, tri et adaptation des variables meta
+d <- d %>% 
+  rename_with(~ gsub('[[:punct:]]$', '', .x)) %>% 
+  rename_with(~ gsub('[[:punct:]]', '', .x)) %>% #on peut mettre un _ à la place de rien
+  select(!c("lastpage","seed","startdate","submitdate",)) %>% 
+  rename(lan = startlanguage, dat = datestamp)
+
+# on enlève les majuscules
+names(d) <- tolower(names(d))
+
+# Mise à jour du format des dates avec lubridate
+d$dat <- ymd_hms(d$dat)
+
+###########################
+# Préparation des données #
+###########################
+
+d <- d %>% 
+  mutate(
+    q1sq001 = factor(q1sq001, levels = c("A1","A2","A3","A4"), labels = c("pas du tout", "plutôt non", "plutôt oui", "tout à fait")),
+    q1sq002 = factor(q1sq002, levels = c("A1","A2","A3","A4"), labels = c("pas du tout", "plutôt non", "plutôt oui", "tout à fait")),
+    q1sq003 = factor(q1sq003, levels = c("A1","A2","A3","A4"), labels = c("pas du tout", "plutôt non", "plutôt oui", "tout à fait")),
+    q1sq004 = factor(q1sq004, levels = c("A1","A2","A3","A4"), labels = c("pas du tout", "plutôt non", "plutôt oui", "tout à fait")),
+    q1sq005 = factor(q1sq005, levels = c("A1","A2","A3","A4"), labels = c("pas du tout", "plutôt non", "plutôt oui", "tout à fait")),
+    )
+    
+
+##########
+# Tables #
+##########
+sum_ques <- d %>% 
+  summarize(n=n()) %>% 
+  ungroup()
+
+sum <- summarize(d, n())
+
+
+#################
+# Visualisation #
+#################
+
+# Liste des items
+items <- list("Je suis satisfait·e du cours.",
+             "Je pense que je parviendrai à transférer les apports du cours dans ma future classe.",
+             "J'ai le sentiment que ce cours me fait progresser.",
+             "L'utilisation des technologies m'a parue adéquate (podcasts, Moodle, teams, ...).",
+             "Je considère que l'organisation du cours a facilité mon travail."
+             )
+
+# Liste des noms des variables que l'on veut (q1 à q4 uniquement).
+var_list <- names(d)[4:8]
+
+# création de la liste pour accueillir les 5 plots
+plot_list = list()
+
+for (i in 1:5) {
+  p <- d %>% 
+    ggplot() +
+    aes_string(x = var_list[i]) +
+    labs(title = paste("Mesure item ",items[[i]], sep="\n"), y = "Somme") +
+    theme(plot.title = element_text(hjust = 0.5, size = 6.5),
+          axis.text.x = (element_text(angle = 50, vjust = 0.5, hjust = 0.5))) +
+    geom_bar() +
+    labs(x = "Répartition", fill = "Projections 2021") +
+    scale_x_discrete(drop = FALSE) # Forcer l'affichage des catégories vides
+  #theme(legend.title = element_blank()) # Pour cacher le titre de la légende
+  plot_list[[i]] = p
+}
+
 ```
 
 # Contexte
@@ -59,7 +156,7 @@ fl_w <- 6.3/ncol(sum_ques)
 fl <- flextable::flextable(sum_ques)
 fl <- flextable::width(fl, width=fl_w)
 fl <- flextable::font(fl, fontname="calibri")
-fl <- flextable::set_header_labels(fl, q5 = "Catégorie", n = "Nombre")
+fl <- flextable::set_header_labels(fl, n = "Nombre")
 fl
 
 ```
@@ -69,10 +166,10 @@ fl
 (pas du tout - plutôt non - plutôt oui - tout à fait)
 
 - Je suis satisfait·e du cours.
-- Je parviens à transférer les apports du cours en stage.
+- Je pense que je parviendrai à transférer les apports du cours dans ma future classe.
 - J'ai le sentiment que ce cours me fait progresser.
-- L'adaptation du cours aux conditions sanitaires est satisfaisante.
-- Je considère que l'organisation du cours facilite mon travail.
+- L'utilisation des technologies m'a parue adéquate (podcasts, Moodle, teams, ...).
+- Je considère que l'organisation du cours a facilité mon travail.
 
 # Plots
 
@@ -134,29 +231,16 @@ fl4
 
 ## Interprétation
 
-Les étudiant·es valident l'organisation à distance telle que proposée. Les demandes de régulations concernent pour l'essentiel des clarifications sur les éléments de certification.
-
-Il semble que les étudiant·es savent ce qu'ils et elles doivent faire et comment ils et elles peuvent s'y prendre.
-
-L'équilibre entre contraintes d'un cadre serré et autonomie de la liberté laissée est fragile mais fonctionne à ce stade.
+...
 
 ## Points forts à conserver pour `r rmarkdown::metadata$remediation`
 
 Les éléments suivants sont à conserver :
 
-- Équilibre entre activités et séances facultatives / obligatoires
-- Clarté des contenus
-- Liens avec le métier
-- Maintenir les capsules vidéo courtes et claires
-- Maintenir des contacts obligatoires réguliers
+- ...
 
 ## Planification des améliorations pour `r rmarkdown::metadata$remediation`
 
 Les améliorations suivantes sont prévues :
 
-- Ramener le curseur vers un peu moins d'autonomie (et plus de sécurité)
-- Centraliser (et rendre plus visibles) les documents de cours
-- Limiter les micro-tâches (planning trop précis et varié)
-- Augmenter le cadrage de la certification
-- Coordonner les travaux de groupe avec les autres cours
-- Utiliser les PACKS pour porter les travaux certificatifs plus intensément
+- ...

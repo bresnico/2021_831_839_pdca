@@ -23,8 +23,6 @@ usethis::use_github()
 # Step 3: Push the changes to your GitHub repository
 # git push
 
-# Deploying 
-#usethis::use_github_pages(branch = "master")
-
-
+# Deploying
+usethis::use_github_pages(branch = "master")
 
