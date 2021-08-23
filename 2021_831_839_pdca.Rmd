@@ -1,0 +1,162 @@
+---
+title: "Synthèse des réponses au questionnaire d'évaluation du cours"
+author: "Nicolas Bressoud"
+date: "mai 2021"
+code_cours: "5.3"
+intitule_cours: "Enseigner en classe hétérogène"
+nombre_etus: "44"
+semestre: "Automne 2021"
+remediation: "2021-2022"
+lang: fr
+toc-title: "Table des matières"
+output:
+  officedown::rdocx_document:
+    reference_docx: "template.docx"
+    toc: true
+    toc_depth: 1
+  bookdown::html_document2:
+    citation_package: none
+    toc: no
+  pdf_document:
+    toc: true
+  bookdown::word_document2:
+    citation_package: none
+    reference_docx: "template.docx"
+    toc: true
+    lang: "french"
+  bookdown::pdf_document2:
+    keep_tex: yes
+knit: knitnbr::knit_date_output
+---
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+source("pdca_mi-parcours.R")
+```
+
+# Contexte
+
+Ce rapport concerne les résultats bruts liés à l'évaluation, par les étudiant·es.
+
+Code du cours : `r rmarkdown::metadata$code_cours`
+
+Intitulé du cours : `r rmarkdown::metadata$intitule_cours`
+
+Période du cours : `r rmarkdown::metadata$semestre`
+
+
+
+# Données de base
+
+Nombre de personnes inscrites au cours sur Moodle à la date de l'évaluation : `r rmarkdown::metadata$nombre_etus`
+
+Nombres de participant·es au questionnaire : `r sum[[1]]` 
+
+
+```{r sum, tab.id="sum", tab.cap="Résumé de la participation", tab.cap.style="Table Caption"}
+fl_w <- 6.3/ncol(sum_ques)
+fl <- flextable::flextable(sum_ques)
+fl <- flextable::width(fl, width=fl_w)
+fl <- flextable::font(fl, fontname="calibri")
+fl <- flextable::set_header_labels(fl, q5 = "Catégorie", n = "Nombre")
+fl
+
+```
+
+
+## Questions
+(pas du tout - plutôt non - plutôt oui - tout à fait)
+
+- Je suis satisfait·e du cours.
+- Je parviens à transférer les apports du cours en stage.
+- J'ai le sentiment que ce cours me fait progresser.
+- L'adaptation du cours aux conditions sanitaires est satisfaisante.
+- Je considère que l'organisation du cours facilite mon travail.
+
+# Plots
+
+```{r vis, fig.show = "hold", out.width = "100%", fig.retina = 3, fig.align = "center", warning=FALSE, results='hide'}
+plot_list
+```
+
+# Retours qualitatifs 
+
+## Forces
+
+```{r for}
+quali <- d %>% 
+  select(q2)
+fl2 <- flextable::flextable(quali)
+fl2 <- flextable::set_header_labels(fl2, q2 = "Forces")
+fl2 <- flextable::delete_part(fl2, part = "header")
+fl2 <- flextable::autofit(fl2, add_h = 0.2)
+fl2 <- flextable::width(fl2, width = 6.3)
+fl2 <- flextable::font(fl2, fontname="calibri")
+fl2
+```
+
+## Limites
+
+```{r wea}
+
+quali2 <- d %>% 
+  select(q3)
+fl3 <- flextable::flextable(quali)
+fl3 <- flextable::set_header_labels(fl3, q3 = "Limites")
+fl3 <- flextable::delete_part(fl3, part = "header")
+fl3 <- flextable::autofit(fl3, add_h = 0.2)
+fl3 <- flextable::width(fl3, width = 6.3)
+fl3 <- flextable::font(fl3, fontname="calibri")
+fl3
+
+```
+
+## Propositions des étudiant·es
+
+```{r rem}
+
+
+
+quali3 <- d %>% 
+  select(q4)
+fl4 <- flextable::flextable(quali)
+fl4 <- flextable::set_header_labels(fl4, q4 = "Améliorations envisageables")
+fl4 <- flextable::delete_part(fl4, part = "header")
+fl4 <- flextable::autofit(fl4, add_h = 0.2)
+fl4 <- flextable::width(fl4, width = 6.3)
+fl4 <- flextable::font(fl4, fontname="calibri")
+fl4
+
+```
+
+# Synthèse
+
+## Interprétation
+
+Les étudiant·es valident l'organisation à distance telle que proposée. Les demandes de régulations concernent pour l'essentiel des clarifications sur les éléments de certification.
+
+Il semble que les étudiant·es savent ce qu'ils et elles doivent faire et comment ils et elles peuvent s'y prendre.
+
+L'équilibre entre contraintes d'un cadre serré et autonomie de la liberté laissée est fragile mais fonctionne à ce stade.
+
+## Points forts à conserver pour `r rmarkdown::metadata$remediation`
+
+Les éléments suivants sont à conserver :
+
+- Équilibre entre activités et séances facultatives / obligatoires
+- Clarté des contenus
+- Liens avec le métier
+- Maintenir les capsules vidéo courtes et claires
+- Maintenir des contacts obligatoires réguliers
+
+## Planification des améliorations pour `r rmarkdown::metadata$remediation`
+
+Les améliorations suivantes sont prévues :
+
+- Ramener le curseur vers un peu moins d'autonomie (et plus de sécurité)
+- Centraliser (et rendre plus visibles) les documents de cours
+- Limiter les micro-tâches (planning trop précis et varié)
+- Augmenter le cadrage de la certification
+- Coordonner les travaux de groupe avec les autres cours
+- Utiliser les PACKS pour porter les travaux certificatifs plus intensément
